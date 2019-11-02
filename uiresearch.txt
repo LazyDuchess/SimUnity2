@@ -1,0 +1,195 @@
+Loading Screen Background:
+basegame ui.package
+Instance: 0xCCC9AF80
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+
+Main Menu Blurry Nhood Background:
+basegame ui.package
+Instance: 0xCCC9AF70
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+
+Sims 2 Logo:
+basegame ui.package
+Instance: 0xBC800092
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+
+High Res Sims 2 Logo:
+basegame ui.package
+Instance: 0xBC800090
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+
+Double Deluxe Logo:
+basegame ui.package
+Instance: 0x8CBB9323
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+
+Main Menu Neighborhood Chooser Panel:
+basegame ui.package
+Instance: 0xCCC30135
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+
+Bottom Middle Button (Nhood chooser):
+basegame ui.package
+Instance: 0xCCC30138
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+x: -3.5
+y: -253.5
+
+
+Background Color:
+0.007843138, 0.1647059, 0.2784314
+
+Top Left Peeps:
+basegame ui.package
+1-
+Instance: 0xCCC30175
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+2-
+Instance: 0xCCC30176
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+3-
+Instance: 0xCCC30177
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+X: -208.1
+Y: 194.3
+
+Bottom Right Peeps:
+basegame ui.package
+1-
+Instance: 0xCCC30172
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+2-
+Instance: 0xCCC30171
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+3-
+Instance: 0x856DDBAC
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+X: 213.6
+Y: -125.5
+
+Plumbob anim:
+ui.package
+Instance: 0xCCC30200
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+X: -4.6
+Y: 285
+
+Exit button:
+ui.package
+Instance: 0xCCC30095
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+x: -3.5
+y: -250.5
+
+Button background:
+ui.package
+Instance: 0xCCC29090
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+
+Main Menu Sims 2 Logo:
+ui.package
+Instance: 0xCCC30080
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+X: 0
+Y: 226.4
+
+Tooltip:
+ui.package
+Instance: 0x14416190
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+
+Quit String:
+Text/Neighborhood.package
+Instance: 0x00000086
+Instance (High): 0x00000000
+Group: 0xFFFFFFFF
+Type: 0x53545223
+
+Nhood Chooser Picture Frame:
+ui.package
+Instance: 0xCCC30000
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+Y: 29.3
+XOffset: 165
+
+Exit Dialog?:
+ui.package
+Instance: 0xCB002285
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+
+Nhood chooser left:
+ui.package
+Instance: 0xCCC30110
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+
+Nhood chooser right:
+ui.package
+Instance: 0xCCC30115
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+X: 288
+Y: 51
+
+Unknown hood picture:
+ui.package
+Instance: 0xCCC30155
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+
+Unknown hood thumb:
+ui.package
+Instance: 0xCCC30160
+Instance (High): 0x00000000
+Group: 0x499DB772
+Type: 0x856DDBAC
+
+Nhood moosic:
+Sound/Neighborhood.package
+Instance: 0xFFA78F62
+Instance (High): 0x09CCDF11
+Group: 0xFFC4D24B
+Type: 0x2026960B
