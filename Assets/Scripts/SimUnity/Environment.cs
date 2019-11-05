@@ -68,7 +68,8 @@ public static class Environment
     public static void LoadNHoodData()
     {
         LoadArchives(config.archives_nhood);
-        var testCres = new RCOLFile(Environment.GetAsset("accessorydart_cres"));
+        //var testCres = new RCOLFile(Environment.GetAsset("airport-terminal-001-ferry-001-neighborhood_stonebridge_cres".ToLower()));
+        //RCOLFile.GetModel("airport-terminal-001-ferry-001-neighborhood_stonebridge");
         var hoodDecos = GetItemsByType(0x6D619378);
         foreach(var element in hoodDecos)
         {
@@ -76,9 +77,10 @@ public static class Environment
             var cpfFile = new CPFFile(element.Value);
             decoDesc.name = cpfFile.GetString("name");
             decoDesc.modelName = cpfFile.GetString("modelname");
-            var assetName = GetAsset(decoDesc.modelName.ToLower() + "_tslocator_gmdc");
-            if (assetName != null)
-                decoDesc.model = new RCOLFile(assetName).dataBlocks[0] as GMDCDataBlock;
+            //var assetName = GetAsset(decoDesc.modelName.ToLower() + "_tslocator_gmdc");
+            //var assetName = GetAsset( + "_cres");
+            Debug.Log("Doing " + decoDesc.modelName);
+            decoDesc.model = RCOLFile.GetModel(decoDesc.modelName.ToLower());
             var guid = cpfFile.GetUInt("guid");
             decoDesc.guid = guid;
             hoodDeco.Add(decoDesc);

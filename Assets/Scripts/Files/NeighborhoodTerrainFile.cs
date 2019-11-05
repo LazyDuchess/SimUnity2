@@ -13,7 +13,7 @@ public class NHoodDecorationDescription
     public string name;
     public string modelName;
     public uint guid;
-    public GMDCDataBlock model;
+    public ModelWrapper model;
 }
 
 public class NHoodDecoration
@@ -27,6 +27,9 @@ public class NHoodDecoration
         var deco = new GameObject(description.name);
         if (description.model != null)
         {
+            var moddi = description.model.Spawn();
+            moddi.transform.SetParent(deco.transform);
+            /*
             foreach (var element in description.model.model.meshes)
             {
                 var imposterGroup = new GameObject("Mesh");
@@ -38,7 +41,7 @@ public class NHoodDecoration
                     mats[i] = Environment.defaultMaterial;
                 imposterMeshRenderer.sharedMaterials = mats;
                 imposterGroup.transform.SetParent(deco.transform);
-            }
+            }*/
         }
         deco.transform.position = position;
         deco.transform.rotation = Quaternion.Euler(new Vector3(0f,rotation,0f));

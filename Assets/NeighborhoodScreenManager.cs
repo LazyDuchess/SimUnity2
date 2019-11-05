@@ -11,6 +11,7 @@ public class NeighborhoodScreenManager : MonoBehaviour
     void Start()
     {
         Environment.currentNhood.Spawn();
+        //RCOLFile.GetModel("ldwashingmachine").Spawn();
         /*
         var desertTXTR = (new RCOLFile(Environment.GetAsset(Hash.TGIRHash(0xFFEB2F8B, 0x4691724B, 0x1C4A276C, 0x1C0532FA))).dataBlocks[0] as TXTRDataBlock);
         var Meme = new TerrainGeometryFile(Environment.currentNhood.package.GetItemByFullID(Hash.TGIRHash(0x00000000, 0x00000000, 0xABCB5DA4, Environment.currentNhood.package.groupID))).terrainMesh;

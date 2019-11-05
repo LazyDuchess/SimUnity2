@@ -8,6 +8,7 @@ using SU2.Utils.Helpers;
 
 public class TerrainGeometryFile
 {
+    public bool hasWater = false;
     public static float shoreDistance = 40f;
     public TerrainType tType;
     public Mesh terrainMesh;
@@ -107,7 +108,10 @@ public class TerrainGeometryFile
 
                 //var col = Color.black;
                 if (height <= waterElevation)
+                {
                     waterPoints.Add(new Vector3(x * World.neighborhoodTerrainSize, height, y * World.neighborhoodTerrainSize));
+                    hasWater = true;
+                }
                  //   col = Color.red;
                 vertices[index] = new Vector3(x * World.neighborhoodTerrainSize, height, y * World.neighborhoodTerrainSize);
                 tangents[index] = tangent;
@@ -115,18 +119,21 @@ public class TerrainGeometryFile
                 uvs[index++] = new Vector2(x * uvFactorX, y * uvFactorY);
             }
         }
-        for (var i = 0; i < vertices.Length; i++)
+        if (hasWater)
         {
-            var col = colors[i];
-            foreach (var element in waterPoints)
+            for (var i = 0; i < vertices.Length; i++)
             {
-                var dist = Vector3.Distance(element, vertices[i]);
-                if (dist <= shoreDistance)
+                var col = colors[i];
+                foreach (var element in waterPoints)
                 {
-                    col = Color.Lerp(Color.red,col,dist/shoreDistance);
+                    var dist = Vector3.Distance(element, vertices[i]);
+                    if (dist <= shoreDistance)
+                    {
+                        col = Color.Lerp(Color.red, col, dist / shoreDistance);
+                    }
                 }
+                colors[i] = col;
             }
-            colors[i] = col;
         }
         index = 0;
         for (int y = 0; y < segments; y++)

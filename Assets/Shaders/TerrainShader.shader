@@ -16,19 +16,24 @@
 			_CliffContrast("Cliff Contrast", float) = 1.0
 			_CliffGlossiness("Cliff Smoothness", Range(0,1)) = 0.0
 			_CliffMetallic("Cliff Metallic", Range(0,1)) = 0.0
-    }
-    SubShader
-    {
-        Tags { "RenderType"="Opaque" }
-        LOD 200
+			_Roughness("Roughness Texture", 2D) = "white" {}
+		_RoughnessHeightMin("Roughness Height Minimum", float) = 0.0
+			_RoughnessHeightMax("Roughness Height Maximum", float) = 1.0
+	}
+		SubShader
+		{
+			Tags { "RenderType" = "Opaque" }
+			LOD 200
 
-        CGPROGRAM
-        // Physically based Standard lighting model, and enable shadows on all light types
-        #pragma surface surf Standard fullforwardshadows
+			CGPROGRAM
+			// Physically based Standard lighting model, and enable shadows on all light types
+			#pragma surface surf Standard fullforwardshadows
 
-        // Use shader model 3.0 target, to get nicer looking lighting
-        #pragma target 3.0
-
+			// Use shader model 3.0 target, to get nicer looking lighting
+			#pragma target 3.0
+				sampler2D _Roughness;
+		float _RoughnessHeightMin;
+		float _RoughnessHeightMax;
         sampler2D _MainTex;
 		sampler2D _CliffTex;
 		sampler2D _ShoreTex;
@@ -77,10 +82,12 @@
             fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color;
 			fixed4 l = tex2D(_CliffTex, IN.uv_MainTex) * _Color;
 			fixed4 s = tex2D(_ShoreTex, IN.uv_MainTex) * _Color;
+			fixed4 r = tex2D(_Roughness, IN.uv_MainTex) * _Color;
 			
-			float coeff = min(_ShoreFalloff, max(0.0, IN.worldPos.y - _WaterLevel - _ShoreOffset)) / _ShoreFalloff;
+			//float coeff = min(_ShoreFalloff, max(0.0, IN.worldPos.y - _WaterLevel - _ShoreOffset)) / _ShoreFalloff;
 			//o.Albedo = lerp(s.rgb, c.rgb, coeff);
 			o.Albedo = lerp(c.rgb, s.rgb, IN.color.r);
+			o.Albedo = lerp(o.Albedo, r.rgb, min(1.0,max(0.0,(IN.worldPos.y-_RoughnessHeightMin))/_RoughnessHeightMax));
 			float cliffAmount = pow(max(float3(0.0, 0.0, 0.0), dot(o.Normal, float3(0.0, 1.0, 0.0))), _CliffIntensity);
 			cliffAmount = -cliffAmount + 1.0;
 			/*

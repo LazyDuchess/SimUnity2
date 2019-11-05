@@ -27,7 +27,7 @@ namespace FSO.Files.Utils
     /// </summary>
     public class IoBuffer : IDisposable, BCFReadProxy
     {
-        private Stream Stream;
+        public Stream Stream;
         private BinaryReader Reader;
         public ByteOrder ByteOrder = ByteOrder.BIG_ENDIAN;
 
@@ -70,6 +70,7 @@ namespace FSO.Files.Utils
         {
             Reader.BaseStream.Seek(offset, origin);
         }
+
 
         /// <summary>
         /// Reads a variable length unsigned integer from the current stream.

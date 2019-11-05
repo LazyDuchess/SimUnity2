@@ -14,16 +14,19 @@ public class TerrainType
     string terrainTexture;
     string shoreTexture;
     string cliffTexture;
+    string roughnessTexture;
     public TXTRDataBlock terrainTexture2D;
     public TXTRDataBlock shoreTexture2D;
     public TXTRDataBlock cliffTexture2D;
+    public TXTRDataBlock roughnessTexture2D;
     public Material terrainMaterial;
 
-    public TerrainType(string terrainTexture, string shoreTexture, string cliffTexture)
+    public TerrainType(string terrainTexture, string shoreTexture, string cliffTexture, string roughnessTexture)
     {
         this.terrainTexture = terrainTexture;
         this.shoreTexture = shoreTexture;
         this.cliffTexture = cliffTexture;
+        this.roughnessTexture = roughnessTexture;
     }
     public void Load()
     {
@@ -32,10 +35,12 @@ public class TerrainType
         terrainTexture2D = new RCOLFile(Environment.GetAsset(terrainTexture)).dataBlocks[0] as TXTRDataBlock;
         shoreTexture2D = new RCOLFile(Environment.GetAsset(shoreTexture)).dataBlocks[0] as TXTRDataBlock;
         cliffTexture2D = new RCOLFile(Environment.GetAsset(cliffTexture)).dataBlocks[0] as TXTRDataBlock;
+        roughnessTexture2D = new RCOLFile(Environment.GetAsset(roughnessTexture)).dataBlocks[0] as TXTRDataBlock;
         terrainMaterial = new Material(TerrainMaterial);
         terrainMaterial.mainTexture = terrainTexture2D.getTexture();
         terrainMaterial.SetTexture("_CliffTex", cliffTexture2D.getTexture());
         terrainMaterial.SetTexture("_ShoreTex", shoreTexture2D.getTexture());
+        terrainMaterial.SetTexture("_Roughness", roughnessTexture2D.getTexture());
     }
 }
 public class NeighborhoodData
@@ -73,10 +78,10 @@ public class Neighborhood
 {
     public static Dictionary<string, TerrainType> TerrainTypes = new Dictionary<string, TerrainType>()
     {
-        {"Temperate", new TerrainType("nh-temperate-wet-00_txtr","terrain-beach_txtr","nh-test-cliff_txtr") },
-        {"Dirt", new TerrainType("dirt-rough_txtr","terrain-beach_txtr","nh-test-cliff_txtr") },
-        {"Desert", new TerrainType("desert-rough_txtr","terrain-beach_txtr","nh-test-cliff_txtr") },
-        {"Concrete", new TerrainType("concrete-smooth_txtr","terrain-beach_txtr","nh-test-cliff_txtr") }
+        {"Temperate", new TerrainType("nh-temperate-wet-00_txtr","terrain-beach_txtr","nh-test-cliff_txtr","nh-temperate-drydry-00_txtr") },
+        {"Dirt", new TerrainType("dirt-rough_txtr","terrain-beach_txtr","nh-test-cliff_txtr","dirt-rough_txtr") },
+        {"Desert", new TerrainType("desert-smooth_txtr","terrain-beach_txtr","nh-test-cliff_txtr","desert-rough_txtr") },
+        {"Concrete", new TerrainType("concrete-smooth_txtr","terrain-beach_txtr","nh-test-cliff_txtr", "concrete-smooth_txtr") }
     };
     public static Texture2D unknownHoodPicture;
     public Texture2D thumbnail;
@@ -102,19 +107,22 @@ public class Neighborhood
         }
         var NeighborhoodObject = new GameObject(name);
         var TerrainGameObject = new GameObject("Terrain");
-        var WaterGameObject = new GameObject("Water");
-        var waterFilter = WaterGameObject.AddComponent<MeshFilter>();
-        var waterRenderer = WaterGameObject.AddComponent<MeshRenderer>();
-        waterFilter.sharedMesh = data.terrain.waterMesh;
-        WaterGameObject.transform.position = new Vector3(0f, data.terrain.waterElevation, 0f);
-        waterRenderer.sharedMaterial = TerrainType.WaterMaterial;
-        var rendTex = new RenderTexture(512, 512, 24);
-        waterRenderer.sharedMaterial.SetTexture("_Reflection", rendTex);
-        var reflectionCam = new GameObject();
-        var refCamComp = reflectionCam.AddComponent<Camera>();
-        var planRef = WaterGameObject.AddComponent<Reflection>();
-        planRef.reflectionCamera = refCamComp;
-        refCamComp.targetTexture = rendTex;
+        if (data.terrain.hasWater)
+        {
+            var WaterGameObject = new GameObject("Water");
+            var waterFilter = WaterGameObject.AddComponent<MeshFilter>();
+            var waterRenderer = WaterGameObject.AddComponent<MeshRenderer>();
+            waterFilter.sharedMesh = data.terrain.waterMesh;
+            WaterGameObject.transform.position = new Vector3(0f, data.terrain.waterElevation, 0f);
+            waterRenderer.sharedMaterial = TerrainType.WaterMaterial;
+            var rendTex = new RenderTexture(512, 512, 24);
+            waterRenderer.sharedMaterial.SetTexture("_Reflection", rendTex);
+            var reflectionCam = new GameObject();
+            var refCamComp = reflectionCam.AddComponent<Camera>();
+            var planRef = WaterGameObject.AddComponent<Reflection>();
+            planRef.reflectionCamera = refCamComp;
+            refCamComp.targetTexture = rendTex;
+        }
         var TerrainFilter = TerrainGameObject.AddComponent<MeshFilter>();
         TerrainFilter.sharedMesh = data.terrain.terrainMesh;
         var TerrainRenderer = TerrainGameObject.AddComponent<MeshRenderer>();

@@ -249,9 +249,25 @@ namespace FSO.Files.Formats.DBPF
                 {
                     var ent = GetEntry(element);
                     var gId = "0x" + element.GroupID.ToString("x8");
-                    var nam = RCOLFile.GetName(ent).ToLower();
+                    var nam = "";
+                    if (element.TypeID == 0xE519C933)
+                        nam = RCOLFile.GetCRESName(ent).ToLower();
+                    else if (element.TypeID == 0x7BA3838C)
+                        nam = RCOLFile.GetGMNDName(ent).ToLower();
+                    else
+                        nam = RCOLFile.GetName(ent).ToLower();
+                    
+                    /*
+                    else
+                    {
+                        var fuNam = new RCOLFile(ent);
+                        foreach(var element3 in fuNam.dataBlocks)
+                    }
+                    if (element.TypeID != 0xE519C933 && element.TypeID != 0xAC4F8687)*/
+                       // Debug.Log(nam+" - 0x"+element.TypeID.ToString("X8"));
+                    Debug.Log(nam);
                     var gNam = "##" + gId + "!" + nam;
-                    //Debug.Log(nam);
+                    Debug.Log(nam);
                     m_EntryByName[nam] = element;
                     m_EntryByName[gNam] = element;
                     if (element.global)
