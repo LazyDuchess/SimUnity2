@@ -30,6 +30,7 @@ Shader "Custom/reflect" {
 	struct Input {
 		float2 uv_MainTex;
 		float3 worldRefl;
+		float3 viewDir;
 		//float3 worldPos;
 		//float3 worldNormal;
 		INTERNAL_DATA
@@ -60,7 +61,6 @@ Shader "Custom/reflect" {
 		float3 normalNormal = UnpackNormal(tex2D(_BumpMap, IN.uv_MainTex));
 		o.Normal = lerp(bumpNormal, normalNormal, _BumpOrNormal);
 		float4 c = tex2D(_MainTex, IN.uv_MainTex);
-		o.Albedo = c.rgb;
 		clip(c.a-_Cutout);
 		//half3 worldNormal;
 		//worldNormal.x = dot(i.tspace0, tnormal);
@@ -71,9 +71,11 @@ Shader "Custom/reflect" {
 		//half3 worldViewDir = normalize(UnityWorldSpaceViewDir(IN.worldPos));
 		//half3 worldRefl = reflect(-worldViewDir, IN.worldNormal);
 		float4 reflection = UNITY_SAMPLE_TEXCUBE_LOD(unity_SpecCube0, reflectedDir, _ReflectionBlur);
-		hdrReflection.rgb = DecodeHDR(reflection, unity_SpecCube0_HDR)*_Reflectivity;
+		hdrReflection.rgb = DecodeHDR(reflection, unity_SpecCube0_HDR);
 		//hdrReflection.rgb = tex2D(_EnvMap, reflectedDir);
 		hdrReflection.a = 1.0;
+		float InverseReflect = (-_Reflectivity) + 1.0;
+		o.Albedo = c.rgb*InverseReflect;
 		o.Emission = hdrReflection*_Reflectivity;
 		//c.a = 1.0;
 	}

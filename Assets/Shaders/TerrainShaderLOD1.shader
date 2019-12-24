@@ -1,9 +1,7 @@
-﻿Shader "Custom/TerrainShader"
+﻿Shader "Custom/TerrainShaderLOD1"
 {
     Properties
     {
-		_EdgeLength("Edge length", Range(2,50)) = 5
-			_Phong("Phong Strengh", Range(0,1)) = 0.5
         _Color ("Color", Color) = (1,1,1,1)
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
 		_CliffTex("Cliff (RGB)", 2D) = "white" {}
@@ -29,14 +27,10 @@
 
 			CGPROGRAM
 			// Physically based Standard lighting model, and enable shadows on all light types
-			#pragma surface surf SimpleSpecular fullforwardshadows tessellate:tessEdge tessphong:_Phong addshadow
+			#pragma surface surf SimpleSpecular fullforwardshadows
 
 			// Use shader model 3.0 target, to get nicer looking lighting
-			#pragma target 4.6
-			#include "Tessellation.cginc"
-
-			float _Phong;
-			float _EdgeLength;
+			#pragma target 3.0
 				sampler2D _Roughness;
 		float _RoughnessHeightMin;
 		float _RoughnessHeightMax;
@@ -69,11 +63,6 @@
         UNITY_INSTANCING_BUFFER_START(Props)
             // put more per-instance properties here
         UNITY_INSTANCING_BUFFER_END(Props)
-			void dispNone(inout appdata_full v) { }
-			float4 tessEdge(appdata_full v0, appdata_full v1, appdata_full v2)
-		{
-			return UnityEdgeLengthBasedTess(v0.vertex, v1.vertex, v2.vertex, _EdgeLength);
-		}
 
 		float3 blend(float3 texture1, float a1, float3 texture2, float a2)
 		{
@@ -102,22 +91,35 @@
 		}
         void surf (Input IN, inout SurfaceOutput o)
         {
+            // Albedo comes from a texture tinted by color
             fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color;
 			fixed4 l = tex2D(_CliffTex, IN.uv_MainTex) * _Color;
 			fixed4 s = tex2D(_ShoreTex, IN.uv_MainTex) * _Color;
 			fixed4 r = tex2D(_Roughness, IN.uv_MainTex) * _Color;
+			
+			//float coeff = min(_ShoreFalloff, max(0.0, IN.worldPos.y - _WaterLevel - _ShoreOffset)) / _ShoreFalloff;
+			//o.Albedo = lerp(s.rgb, c.rgb, coeff);
 			o.Albedo = lerp(c.rgb, s.rgb, IN.color.r);
 			o.Albedo = lerp(o.Albedo, r.rgb, min(1.0,max(0.0,(IN.worldPos.y-_RoughnessHeightMin))/_RoughnessHeightMax));
 			float cliffAmount = pow(max(float3(0.0, 0.0, 0.0), dot(o.Normal, float3(0.0, 1.0, 0.0))), _CliffIntensity);
 			cliffAmount = -cliffAmount + 1.0;
+			/*
+			if (-cliffAmount + 1.0 <= _CliffCutoff)
+				cliffAmount = 1.0;*/
 			cliffAmount = max(0.0,cliffAmount-_CliffCutoff)/(1.0-_CliffCutoff);
 			float cliffAmount2 = blend(o.Albedo, 1.0 - cliffAmount, l.rgb, cliffAmount).rgb;
 			o.Albedo.rgb = lerp(o.Albedo,l.rgb,blend(o.Albedo,1.0-cliffAmount,l.rgb, lerp(0,cliffAmount,cliffAmount2)).rgb);
+			//o.Albedo = lerp(o.Albedo, l.rgb, cliffAmount);
+			//o.Albedo *= IN.color.rgb;
+				/*
+			if (IN.worldPos.y <= _WaterLevel)
+				o.Albedo = s.rgb;*/
+            // Metallic and smoothness come from slider variables
             o.Specular = lerp(_Metallic,_CliffMetallic,cliffAmount);
             o.Gloss = lerp(_Glossiness,_CliffGlossiness,cliffAmount);
             o.Alpha = c.a;
         }
         ENDCG
     }
-    FallBack "Custom/TerrainShader"
+    FallBack "Diffuse"
 }

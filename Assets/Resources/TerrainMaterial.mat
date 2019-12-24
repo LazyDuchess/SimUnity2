@@ -71,12 +71,13 @@ Material:
     - _BumpScale: 1
     - _CliffContrast: 1.36
     - _CliffCutoff: 0
-    - _CliffGlossiness: 0.46
+    - _CliffGlossiness: 81.1
     - _CliffIntensity: 1.12
-    - _CliffMetallic: 0
+    - _CliffMetallic: 0.4
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _EdgeLength: 8
     - _GlossMapScale: 1
     - _Glossiness: 0
     - _GlossyReflections: 1
@@ -84,6 +85,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _Phong: 1
     - _RoughnessHeightMax: 9
     - _RoughnessHeightMin: 354.2
     - _ShoreFalloff: 1
@@ -91,6 +93,7 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _Tess: 4
     - _UVSec: 0
     - _WaterLevel: 312.5
     - _ZWrite: 1

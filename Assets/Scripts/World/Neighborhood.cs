@@ -32,10 +32,10 @@ public class TerrainType
     {
         if (terrainTexture2D != null)
             return;
-        terrainTexture2D = new RCOLFile(Environment.GetAsset(terrainTexture)).dataBlocks[0] as TXTRDataBlock;
-        shoreTexture2D = new RCOLFile(Environment.GetAsset(shoreTexture)).dataBlocks[0] as TXTRDataBlock;
-        cliffTexture2D = new RCOLFile(Environment.GetAsset(cliffTexture)).dataBlocks[0] as TXTRDataBlock;
-        roughnessTexture2D = new RCOLFile(Environment.GetAsset(roughnessTexture)).dataBlocks[0] as TXTRDataBlock;
+        terrainTexture2D = new RCOLFile(Environment.GetReference(terrainTexture)).dataBlocks[0] as TXTRDataBlock;
+        shoreTexture2D = new RCOLFile(Environment.GetReference(shoreTexture)).dataBlocks[0] as TXTRDataBlock;
+        cliffTexture2D = new RCOLFile(Environment.GetReference(cliffTexture)).dataBlocks[0] as TXTRDataBlock;
+        roughnessTexture2D = new RCOLFile(Environment.GetReference(roughnessTexture)).dataBlocks[0] as TXTRDataBlock;
         terrainMaterial = new Material(TerrainMaterial);
         terrainMaterial.mainTexture = terrainTexture2D.getTexture();
         terrainMaterial.SetTexture("_CliffTex", cliffTexture2D.getTexture());
@@ -55,7 +55,7 @@ public class NeighborhoodData
     public NeighborhoodData(Neighborhood hood)
     {
         owner = hood;
-        var desertTXTR = (new RCOLFile(Environment.GetAsset(Hash.TGIRHash(0xFFEB2F8B, 0x4691724B, 0x1C4A276C, 0x1C0532FA))).dataBlocks[0] as TXTRDataBlock);
+        var desertTXTR = (new RCOLFile(Environment.GetReference(Hash.TGIRHash(0xFFEB2F8B, 0x4691724B, 0x1C4A276C, 0x1C0532FA))).dataBlocks[0] as TXTRDataBlock);
         terrain = new TerrainGeometryFile(hood.package.GetItemByFullID(Hash.TGIRHash(0x00000000, 0x00000000, 0xABCB5DA4, hood.package.groupID)));
         terrainMaterial = new Material(Environment.defaultMaterial);
         terrainMaterial.mainTexture = desertTXTR.textures[desertTXTR.textures.Length - 1];

@@ -10,12 +10,14 @@ namespace SU2.Files.Formats.RCOL
 {
     public class ModelWrapper
     {
+        public CachedAsset referencedModel;
         public GMDCDataBlock GMDCData;
         public Dictionary<string, cMaterialDefinitionDataBlock> groupMaterialDefs = new Dictionary<string, cMaterialDefinitionDataBlock>();
        // public Dictionary<string, Material> groupMaterials = new Dictionary<string, Material>();
         public GameObject Spawn()
         {
             var modelGameObject = new GameObject("Model");
+            modelGameObject.AddComponent<ReferencingObject>().references.Add(referencedModel);
             var currentOne = 0;
             var i = 0;
             while(currentOne<GMDCData.Groups.Count)
@@ -25,9 +27,16 @@ namespace SU2.Files.Formats.RCOL
                 filter.sharedMesh = GMDCData.model.meshes[i];
                 var rendur = thisGroup.AddComponent<MeshRenderer>();
                 var mattyList = new Material[filter.sharedMesh.subMeshCount];
-              
-                for(var n=0;n<GMDCData.model.meshes[i].subMeshCount;n++)
+                var referenceList = new List<CachedAsset>();
+                for (var n=0;n<GMDCData.model.meshes[i].subMeshCount;n++)
                 {
+                    /*
+                    var groupName = GMDCData.Groups[currentOne].groupName;
+                    if (groupMaterialDefs.ContainsKey(groupName))
+                    {
+                        var matDef = groupMaterialDefs[groupName];
+                    }
+                    */
                     var nMat = new Material(Environment.defaultMaterial);
                     nMat.name = GMDCData.Groups[currentOne].groupName;
                     if (groupMaterialDefs.ContainsKey(GMDCData.Groups[currentOne].groupName))
@@ -35,26 +44,46 @@ namespace SU2.Files.Formats.RCOL
                         var matDef = groupMaterialDefs[GMDCData.Groups[currentOne].groupName];
                         if (matDef.properties.ContainsKey("stdMatBaseTextureName"))
                         {
-                            Debug.Log(matDef.properties["stdMatBaseTextureName"].ToLower() + "_txtr");
-                            var assetCheck = Environment.GetAsset(matDef.properties["stdMatBaseTextureName"].ToLower() + "_txtr");
+                            var texName = matDef.properties["stdMatBaseTextureName"].ToLower() + "_txtr";
+                            var assete = ResourceManager.GetTexture(texName);
+                            nMat.mainTexture = assete.asset.getTexture();
+                            referenceList.Add(assete);
+                            /*
+                            var assetCheck = Environment.GetReference(matDef.properties["stdMatBaseTextureName"].ToLower() + "_txtr");
                             if (assetCheck != null)
-                                nMat.mainTexture = (new RCOLFile(assetCheck).dataBlocks[0] as TXTRDataBlock).getTexture();
+                                nMat.mainTexture = (new RCOLFile(assetCheck).dataBlocks[0] as TXTRDataBlock).getTexture();*/
                         }
                         if (matDef.properties.ContainsKey("reflectivity"))
                         {
-                            nMat.SetFloat("_Reflectivity",float.Parse(matDef.properties["reflectivity"]));
+                            nMat.SetFloat("_Reflectivity",float.Parse(matDef.properties["reflectivity"])*0.25f);
+                            nMat.SetFloat("_ReflectionBlur", (-float.Parse(matDef.properties["reflectivity"])+1f)*2f);
+                        }
+                        if (matDef.properties.ContainsKey("reflectionBlur"))
+                        {
+                            nMat.SetFloat("_ReflectionBlur", float.Parse(matDef.properties["reflectionBlur"]));
                         }
                         if (matDef.properties.ContainsKey("stdMatNormalMapTextureName"))
                         {
-                            var asseto = (new RCOLFile(Environment.GetAsset(matDef.properties["stdMatNormalMapTextureName"].ToLower() + "_txtr")).dataBlocks[0] as TXTRDataBlock).getTexture();
-                            nMat.SetTexture("_BumpMap", asseto);
-                            if (asseto.format != TextureFormat.R8)
+                            var texName = matDef.properties["stdMatNormalMapTextureName"].ToLower() + "_txtr";
+                            var assete = ResourceManager.GetTexture(texName);
+                            var assetTex = assete.asset.getTexture();
+                            nMat.SetTexture("_BumpMap", assetTex);
+                            /*
+                            var asseto = (new RCOLFile(Environment.GetReference(matDef.properties["stdMatNormalMapTextureName"].ToLower() + "_txtr")).dataBlocks[0] as TXTRDataBlock).getHighestLOD();
+                            nMat.SetTexture("_BumpMap", asseto);*/
+                            if (assetTex.format != TextureFormat.R8)
                                 nMat.SetFloat("_BumpOrNormal", 1f);
+                            referenceList.Add(assete);
+                        }
+                        if (nMat.name.ToLower().Contains("shadow"))
+                        {
+                            nMat.SetFloat("_Cutout", 2.0f);
                         }
                     }
                     mattyList[n] = nMat;
                     currentOne += 1;
                 }
+                thisGroup.AddComponent<ReferencingObject>().references = referenceList;
                 rendur.sharedMaterials = mattyList;
                 thisGroup.transform.SetParent(modelGameObject.transform);
                 i += 1;
@@ -252,6 +281,7 @@ namespace SU2.Files.Formats.RCOL
     }
     public class cShapeRefDataBlock : ReferenceDataBlock
     {
+        public List<uint> links = new List<uint>();
         public cTransformDataBlock cTransformNode;
     }
     public class ReferenceDataBlock : DataBlock
@@ -285,6 +315,7 @@ namespace SU2.Files.Formats.RCOL
                 var shapeEnabled = reader.ReadByte();
                 var shapeDependant = reader.ReadByte();
                 var shapeFileLinkIndex = reader.ReadUInt32();
+                thisData.links.Add(shapeFileLinkIndex);
             }
             var unknown1b = reader.ReadUInt32(); //Always 0 or 16
             var count = reader.ReadUInt32();
@@ -594,9 +625,9 @@ namespace SU2.Files.Formats.RCOL
 
         public Texture2D getTexture()
         {
-            var form = TextureFormat.ARGB32;
             if (mipmappedTexture != null)
                 return mipmappedTexture;
+            var form = TextureFormat.ARGB32;
             var highMip = getHighestLOD();
             if (highMip == null)
                 return new Texture2D(2, 2);
@@ -640,7 +671,6 @@ namespace SU2.Files.Formats.RCOL
             var height = reader.ReadUInt32();
             var formatCode = reader.ReadUInt32();
             var mips = reader.ReadUInt32();
-            Debug.Log("Mipmap count " + mips.ToString());
             var unk = reader.ReadUInt32();
             var loopCount = reader.ReadUInt32();
             thisData.textures = new Texture2D[mips];
@@ -675,8 +705,7 @@ namespace SU2.Files.Formats.RCOL
                         var stringLength = reader.ReadByte();
                         var lifoName = reader.ReadCString(stringLength);*/
                         var lifoName = reader.ReadVariableLengthPascalString();
-                        Debug.Log(lifoName);
-                        var lifoAsset = Environment.GetAsset(lifoName);
+                        var lifoAsset = Environment.GetReference(lifoName);
                         if (lifoAsset == null)
                             return thisData;
                         var asset = new RCOLFile(lifoAsset);
@@ -1165,8 +1194,11 @@ namespace SU2.Files.Formats.RCOL
         }
     }
     #endregion
+    public enum ReferenceType { TGIR, TGI};
     public class RCOLFile
     {
+        public ReferenceType referenceType = ReferenceType.TGIR;
+        public List<int> references = new List<int>();
         public bool imposter = false;
         public static List<uint> RCOLTypeIDs = new List<uint>()
         {
@@ -1200,52 +1232,70 @@ namespace SU2.Files.Formats.RCOL
             //culmination of hours of fucking endless typing
             var finalMod = new ModelWrapper();
             var cresFile = name + "_cres";
-            Debug.Log("Looking for cres " + cresFile);
-            var assetCres = Environment.GetAsset(cresFile.ToLower());
+            var assetCres = Environment.GetReference(cresFile.ToLower());
             if (assetCres == null)
                 return finalMod;
-            Debug.Log("Found cres " + cresFile);
             var testCres = new RCOLFile(assetCres);
             foreach(var element in testCres.dataBlocks)
             {
                 if (element.BlockName == "cShapeRefNode")
                 {
-                    Debug.Log("Found shaperefnode");
                     var shapeRefBlock = element as cShapeRefDataBlock;
-                    shapeRefBlock.cTransformNode.cObjectGraphNode.references.Add("root_rot");
-                    foreach(var shape in shapeRefBlock.cTransformNode.cObjectGraphNode.references)
+                    //shapeRefBlock.cTransformNode.cObjectGraphNode.references.Add("root_rot");
+                    foreach (var shapeLink in shapeRefBlock.links)
                     {
-                        if (shape != "")
+                        DBPFReference shape;
+                        if (testCres.referenceType == ReferenceType.TGIR)
+                            shape = Environment.GetReference(testCres.references[(int)shapeLink]);
+                        else
+                            shape = Environment.GetReferenceTGI(testCres.references[(int)shapeLink]);
+                        if (shape != null)
                         {
+                            var shapeAsset = new RCOLFile(shape);
+                            var shapeBlock = shapeAsset.dataBlocks[0] as cShapeDataBlock;
+                            foreach (var element3 in shapeBlock.groupMaterials)
+                            {
+                                var assut = Environment.GetReference(element3.Value.ToLower() + "_txmt");
+                                if (assut != null)
+                                {
+                                    finalMod.groupMaterialDefs[element3.Key] = (new RCOLFile(assut).dataBlocks[0] as cMaterialDefinitionDataBlock);
+                                }
+                            }
+                            var gmndFile = shapeBlock.GMNDFileName;
+                            var gmndAsset = new RCOLFile(Environment.GetReference(gmndFile.ToLower()));
+                            var finalGMDC = (gmndAsset.dataBlocks[0] as cGeometryNodeDataBlock).targetName;
+                            var demGMDC = new RCOLFile(Environment.GetReference(finalGMDC.ToLower())).dataBlocks[0] as GMDCDataBlock;
+
+                            finalMod.GMDCData = demGMDC;
+                            return finalMod;
+                            /*
                             var finalName = name + "_" + shape + "_shpe";
                             Debug.Log(finalName);
-                            var shapeCheck = Environment.GetAsset(finalName.ToLower());
+                            var shapeCheck = Environment.GetReference(finalName.ToLower());*/
+                            /*
                             if (shapeCheck != null)
                             {
                                 var shapeAsset = new RCOLFile(shapeCheck);
                                 var shapeBlock = shapeAsset.dataBlocks[0] as cShapeDataBlock;
                                 foreach (var element3 in shapeBlock.groupMaterials)
                                 {
-                                    var assut = Environment.GetAsset(element3.Value.ToLower() + "_txmt");
+                                    var assut = Environment.GetReference(element3.Value.ToLower() + "_txmt");
                                     Debug.Log("Requesting texture " + element3.Value.ToLower() + "_txmt" + " for " + element3.Key);
                                     if (assut != null)
                                     {
                                         finalMod.groupMaterialDefs[element3.Key] = (new RCOLFile(assut).dataBlocks[0] as cMaterialDefinitionDataBlock);
                                     }
-                                    /*
-                                    else
-                                        finalMod.groupMaterialDefs[element3.Key] = null;*/
                                 }
                                 var gmndFile = shapeBlock.GMNDFileName;
                                 Debug.Log("GMND is " + gmndFile);
-                                var gmndAsset = new RCOLFile(Environment.GetAsset(gmndFile.ToLower()));
+                                var gmndAsset = new RCOLFile(Environment.GetReference(gmndFile.ToLower()));
                                 var finalShit = (gmndAsset.dataBlocks[0] as cGeometryNodeDataBlock).targetName;
                                 Debug.Log("Final gmdc is " + finalShit);
-                                var demGMDC = new RCOLFile(Environment.GetAsset(finalShit.ToLower())).dataBlocks[0] as GMDCDataBlock;
+                                var demGMDC = new RCOLFile(Environment.GetReference(finalShit.ToLower())).dataBlocks[0] as GMDCDataBlock;
 
                                 finalMod.GMDCData = demGMDC;
                                 return finalMod;
-                            }
+                            }*/
                         }
                     }
                 }
@@ -1361,6 +1411,8 @@ namespace SU2.Files.Formats.RCOL
             if (vMark != 0xFFFF0001)
                 skipCount = 12;
             io.Skip(fileLinks * skipCount);
+            if (io.Stream.Position >= io.Stream.Length)
+                return "";
             var items = io.ReadUInt32();
             io.Skip(4 * items);
             var blockName = io.ReadVariableLengthPascalString();
@@ -1372,6 +1424,7 @@ namespace SU2.Files.Formats.RCOL
             var retName = io.ReadVariableLengthPascalString();
             io.Dispose();
             stream.Dispose();
+            //Debug.Log(retName);
             return retName;
             /*
             var dataBlock = streams[blockName].Read(bytes, reader);
@@ -1387,25 +1440,32 @@ namespace SU2.Files.Formats.RCOL
                 var typeID = reader.ReadUInt32();
             }*/
         }
-        public RCOLFile(byte[] bytes, bool imposterTest = false)
+        public RCOLFile(DBPFReference reference, bool imposterTest = false)
         {
             imposter = imposterTest;
-            var stream = new MemoryStream(bytes);
+            var stream = new MemoryStream(reference.fileBytes);
             reader = IoBuffer.FromStream(stream, ByteOrder.LITTLE_ENDIAN);
             var vMark = reader.ReadUInt32();
             if (vMark != 0xFFFF0001)
             {
+                referenceType = ReferenceType.TGI;
                 reader.Seek(SeekOrigin.Begin, 0);
             }
-            var fileLinks = reader.ReadUInt32();
+            var fileLinks = reader.ReadUInt32(); //THESE ARE THE mfing REFERENCES
             for(var i=0;i<fileLinks;i++)
             {
                 var groupID = reader.ReadUInt32();
+                if (groupID == 0xFFFFFFFF)
+                    groupID = reference.file.groupID;
                 var instanceID = reader.ReadUInt32();
                 uint resourceID = 0x0;
-                if (vMark == 0xFFFF0001)
+                if (referenceType == ReferenceType.TGIR)
                     resourceID = reader.ReadUInt32();
                 var typeID = reader.ReadUInt32();
+                var entryID = Utils.Hash.TGIHash(instanceID,typeID,groupID);
+                if (referenceType == ReferenceType.TGIR)
+                    entryID = Utils.Hash.TGIRHash(instanceID, resourceID, typeID, groupID);
+                references.Add(entryID);
             }
             var items = reader.ReadUInt32();
             for (var i = 0; i < items; i++)
@@ -1415,7 +1475,7 @@ namespace SU2.Files.Formats.RCOL
             for (var i = 0;i < items; i++)
             {
                 var blockName = reader.ReadVariableLengthPascalString();
-                var dataBlock = streams[blockName].Read(bytes, reader, this);
+                var dataBlock = streams[blockName].Read(reference.fileBytes, reader, this);
                 dataBlocks.Add(dataBlock);
                 //Read data blocks
             }

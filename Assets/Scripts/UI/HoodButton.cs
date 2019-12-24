@@ -31,7 +31,8 @@ public class HoodButton : MonoBehaviour
     }
     void GoToHood()
     {
-        Environment.GoToHood(currentHood);
+        StartCoroutine(Environment.GoToHood(currentHood));
+        //Environment.GoToHood(currentHood);
     }
     public void SetNeighborhood(Neighborhood hood)
     {

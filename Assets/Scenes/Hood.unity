@@ -188,6 +188,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4824907770227386901, guid: d90107a10b8ed1e438cb06eebc4cc9f2,
+        type: 3}
+      propertyPath: m_RefreshMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4824907770227386901, guid: d90107a10b8ed1e438cb06eebc4cc9f2,
+        type: 3}
+      propertyPath: m_Resolution
+      value: 1024
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d90107a10b8ed1e438cb06eebc4cc9f2, type: 3}
 --- !u!1 &712365113
@@ -335,6 +345,7 @@ GameObject:
   - component: {fileID: 1260871642}
   - component: {fileID: 1260871641}
   - component: {fileID: 1260871640}
+  - component: {fileID: 1260871643}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -374,7 +385,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 10000
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -400,10 +411,28 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1260871639}
-  m_LocalRotation: {x: 0.35991567, y: -0, z: -0, w: 0.9329848}
-  m_LocalPosition: {x: 65.3, y: 70, z: -15.3}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 640, y: 312.5, z: 640}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 42.190002, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1260871643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1260871639}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6aa801414c9038744ada5a21655fb55e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minFOV: 5
+  maxFOV: 150
+  moveSpeed: 50
+  XrotateSpeed: 1
+  YrotateSpeed: -1
+  FOVSpeed: 30

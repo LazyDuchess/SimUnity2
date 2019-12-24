@@ -25,4 +25,5 @@ public class Config
 
     public List<string> archives_main;
     public List<string> archives_nhood;
+    public List<string> archives_startup;
 }

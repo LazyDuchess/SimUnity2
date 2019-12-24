@@ -17,6 +17,17 @@ using UnityEngine;
 
 namespace FSO.Files.Formats.DBPF
 {
+    public class DBPFReference
+    {
+        public byte[] fileBytes;
+        public DBPFFile file;
+
+        public DBPFReference(byte[] bytes, DBPFFile file)
+        {
+            this.fileBytes = bytes;
+            this.file = file;
+        }
+    }
     /// <summary>
     /// The database-packed file (DBPF) is a format used to store data for pretty much all Maxis games after The Sims, 
     /// including The Sims Online (the first appearance of this format), SimCity 4, The Sims 2, Spore, The Sims 3, and 
@@ -62,12 +73,12 @@ namespace FSO.Files.Formats.DBPF
             Read(stream);
         }
 
-        public static DBPFFile LoadResource(string file)
+        public static DBPFFile LoadResource(string file, bool isDownload = false)
         {
             var res = new DBPFFile();
             res.fname = file;
             var stream = File.OpenRead(file);
-            res.Read(stream, true);
+            res.Read(stream, true, isDownload);
             return res;
         }
 
@@ -75,7 +86,7 @@ namespace FSO.Files.Formats.DBPF
         /// Reads a DBPF archive from a stream.
         /// </summary>
         /// <param name="stream">The stream to read from.</param>
-        public void Read(Stream stream, bool global = false)
+        public void Read(Stream stream, bool global = false, bool isDownload = false)
         {
             groupID = Hash.GroupHash(Path.GetFileNameWithoutExtension(fname));
             m_EntryByFullID = new Dictionary<int, DBPFEntry>();
@@ -203,6 +214,8 @@ namespace FSO.Files.Formats.DBPF
                 for (var j = 0; j < numNames; j++)
                 {
                     var gID = read.ReadUInt32();
+                    if (gID == 0xFFFFFFFF)
+                        gID = groupID;
                     var iID = read.ReadUInt32();
                     var nameLength = read.ReadUInt32();
                     var fileNam = read.ReadCString((int)nameLength).ToLower();
@@ -237,13 +250,15 @@ namespace FSO.Files.Formats.DBPF
                             Environment.entryByName[gNam] = hash;
                         }
                     }
+                    /*
                     else
-                        Debug.Log("Can't find instance (InstanceID: " + iID.ToString("X") + ", TypeID: " + element.InstanceID.ToString("X") + ", GroupID: " + gID.ToString("X") + ") for name '" + fileNam + "/" + gNam + "'(Package:" + fname + ")");
+                        Debug.Log("Can't find instance (InstanceID: " + iID.ToString("X") + ", TypeID: " + element.InstanceID.ToString("X") + ", GroupID: " + gID.ToString("X") + ") for name '" + fileNam + "/" + gNam + "'(Package:" + fname + ")");*/
                 }
                 read.Dispose();
                 stream1.Dispose();
             }
-            if (nameMaps.Count == 0)
+            
+            if (nameMaps.Count == 0 || isDownload)
             {
                 foreach (var element in rcols)
                 {
@@ -256,18 +271,7 @@ namespace FSO.Files.Formats.DBPF
                         nam = RCOLFile.GetGMNDName(ent).ToLower();
                     else
                         nam = RCOLFile.GetName(ent).ToLower();
-                    
-                    /*
-                    else
-                    {
-                        var fuNam = new RCOLFile(ent);
-                        foreach(var element3 in fuNam.dataBlocks)
-                    }
-                    if (element.TypeID != 0xE519C933 && element.TypeID != 0xAC4F8687)*/
-                       // Debug.Log(nam+" - 0x"+element.TypeID.ToString("X8"));
-                    Debug.Log(nam);
                     var gNam = "##" + gId + "!" + nam;
-                    Debug.Log(nam);
                     m_EntryByName[nam] = element;
                     m_EntryByName[gNam] = element;
                     if (element.global)

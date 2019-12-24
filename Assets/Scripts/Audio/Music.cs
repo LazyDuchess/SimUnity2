@@ -13,14 +13,15 @@ public class Music : MonoBehaviour
     private IWavePlayer mWaveOutDevice;
     private WaveStream mMainOutputStream;
     private WaveChannel32 mVolumeStream;
-    public MusicCategory currentStation = MusicCategory.Splash;
+    public int currentStation = (int)MusicCategory.Splash;
     bool started = false;
-
+    public static List<Station> soundtrack = new List<Station>();
+    /*
     public static Dictionary<MusicCategory, List<int>> gameMusic = new Dictionary<MusicCategory, List<int>>()
     {
         { MusicCategory.Splash, new List<int>() {Hash.TGIRHash(0xFFA87950, 0x5BA1DCC7, 0x2026960B, 0xFF606C7A) } },
         { MusicCategory.Nhood, new List<int>() {Hash.TGIRHash(0xFFA78F62, 0x09CCDF11, 0x2026960B, 0xFFC4D24B) } }
-    };
+    };*/
 
     private WaveOut LoadAudioFromData(XAFile data, WaveOut device)
     {
@@ -64,8 +65,53 @@ public class Music : MonoBehaviour
         mWaveOutDevice = LoadAudioFromData(Environment.GetAudio(Environment.GetAsset(song)),mWaveOutDevice as WaveOut);
         mWaveOutDevice.Play();
     }
+    public IEnumerator SwitchStationCoroutine()
+    {
+        if (!started)
+        {
+            mWaveOutDevice = new WaveOut();
+            var song = GetRandomSong();
+            mWaveOutDevice = LoadAudioFromData(Environment.GetAudio(Environment.GetAsset(song)), mWaveOutDevice as WaveOut);
+            mWaveOutDevice.Play();
+            started = true;
+            yield break;
+        }
+        else
+        {
+            while(mWaveOutDevice.Volume > 0f)
+            {
+                mWaveOutDevice.Volume = Mathf.Min(1f,Mathf.Max(0f,(mWaveOutDevice.Volume - Time.deltaTime*0.5f)));
+                yield return null;
+            }
+            mWaveOutDevice.Stop();
+            mWaveOutDevice.Dispose();
+            mWaveOutDevice = new WaveOut();
+            var song = GetRandomSong();
+            mWaveOutDevice = LoadAudioFromData(Environment.GetAudio(Environment.GetAsset(song)), mWaveOutDevice as WaveOut);
+            mWaveOutDevice.Play();
+            started = true;
+            /*
+            while (mWaveOutDevice.Volume < 1f)
+            {
+                mWaveOutDevice.Volume += Mathf.Min(1f, Mathf.Max(0f, (mWaveOutDevice.Volume + Time.deltaTime)));
+                yield return null;
+            }*/
+            mWaveOutDevice.Volume = 1f;
+            yield break;
+        }
+    }
     public void SetStation(MusicCategory station)
     {
+        SetStation((int)station);
+    }
+    public void SetStation(int station)
+    {
+        if (station != currentStation)
+        {
+            currentStation = station;
+            StartCoroutine(SwitchStationCoroutine());
+        }
+        /*
         if (station != currentStation)
         {
             if (started)
@@ -79,7 +125,7 @@ public class Music : MonoBehaviour
             mWaveOutDevice = LoadAudioFromData(Environment.GetAudio(Environment.GetAsset(song)), mWaveOutDevice as WaveOut);
             mWaveOutDevice.Play();
             started = true;
-        }
+        }*/
     }
     void OnApplicationQuit()
     {
@@ -91,7 +137,7 @@ public class Music : MonoBehaviour
     }
     int GetRandomSong()
     {
-        var cat = gameMusic[currentStation];
-        return cat[Random.Range(0, cat.Count)];
+        var cat = soundtrack[currentStation].songs;
+        return cat[Random.Range(0, cat.Count)].TGIR;
     }
 }

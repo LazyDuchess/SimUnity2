@@ -64,11 +64,6 @@ namespace SU2.Files.Formats.CPF
     }
     public class CPFFile
     {
-        /* UInt = 0xEB61E4F7,
-        String = 0x0B8BEA18,
-        Float = 0xABC78708,
-        Boolean = 0xCBA908E1,
-        Int2 = 0x0C264712,*/
         public static Dictionary<string, DataType> StringToDataType = new Dictionary<string, DataType>()
         {
             { "0XEB61E4F7",DataType.UInt},
@@ -87,15 +82,7 @@ namespace SU2.Files.Formats.CPF
             foreach (XmlNode node in doc.DocumentElement.ChildNodes)
             {
                 var key = node.Attributes["key"].InnerText;
-                //var type = (DataType)uint.Parse(node.Attributes["type"].InnerText);
                 var type = StringToDataType[node.Attributes["type"].InnerText.ToUpper()];
-                /*
-                if (key == "guid")
-                    Debug.Log("GUID is " + node.InnerText);*/
-                /*
-                Debug.Log(key);
-                Debug.Log(type);
-                Debug.Log(node.InnerText);*/
                 switch (type) {
                     case DataType.UInt:
                         var entri2 = new CPFEntry(key, type, UInt32.Parse(node.InnerText));
@@ -141,7 +128,6 @@ namespace SU2.Files.Formats.CPF
                 var dataType = (DataType)io.ReadUInt32();
                 var fieldNameLength = io.ReadInt32();
                 var fieldName = io.ReadCString(fieldNameLength);
-                //Debug.Log(fieldName);
                 if (fieldName[0] != '"')
                 {
                     switch (dataType)

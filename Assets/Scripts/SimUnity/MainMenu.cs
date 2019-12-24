@@ -107,6 +107,6 @@ public class MainMenu : MonoBehaviour
             var hh = Panel.mainPanel.CreateHoodFramePanel(new Vector2(-xOff+(xOff*i),29.3f), Environment.hoods[i]);
             hoodFrames.Add(hh);
         }
-        Environment.bgMusic.Play();
+        
     }
 }

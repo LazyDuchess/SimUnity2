@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using SU2.Utils;
 
 namespace SU2.UI
 {
@@ -15,6 +16,20 @@ namespace SU2.UI
         public static Font defaultFont = Resources.Load<Font>("Roboto-Regular");
         public static Panel mainPanel;
         public Canvas canvas;
+
+        public void Delete()
+        {
+            Object.Destroy(canvas.gameObject);
+        }
+
+        public static Panel StartupLoading()
+        {
+            var startLoad = new Panel();
+            startLoad.MakePlainBackground(new Color(0.007843138f, 0.1647059f, 0.2784314f));
+            startLoad.AddImage(Environment.LoadUITexture(Hash.TGIRHash(0xCCC9AF80, 0x00000000, 0x856DDBAC, 0x499DB772)), Vector2.zero);
+            return startLoad;
+        }
+
         public HoodButton CreateHoodFramePanel(Vector2 pos, Neighborhood hood)
         {
             var ob = new GameObject();

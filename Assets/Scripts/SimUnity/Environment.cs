@@ -10,9 +10,11 @@ using UnityEngine.SceneManagement;
 using FSO.Files.XA;
 using SU2.Files.Formats.CPF;
 using SU2.Files.Formats.RCOL;
+using System.Threading;
 
 public static class Environment
 {
+    public static bool LoadFinished = false;
     public static Material defaultMaterial = Resources.Load<Material>("DefaultMaterial");
     public static Neighborhood currentNhood = null;
     public static List<Neighborhood> hoods = new List<Neighborhood>();
@@ -50,6 +52,47 @@ public static class Environment
         { "Korean", 20},
         { "Czech", 26}
     };
+    public static void InitInit()
+    {
+        var SplashStation = new Station("", true);
+        SplashStation.songs.Add(new Song(Hash.TGIRHash(0xFFA87950, 0x5BA1DCC7, 0x2026960B, 0xFF606C7A)));
+
+        var NHoodStation = new Station("nhood", false);
+        //BG
+        NHoodStation.songs.Add(new Song(Hash.TGIRHash(0xFFA78F62, 0x09CCDF11, 0x2026960B, 0xFFC4D24B)));
+        //Uni
+        NHoodStation.songs.Add(new Song(Hash.TGIRHash(0xFF347A54, 0x22ED6EBC, 0x2026960B, 0xFFC4D24B)));
+        //NightLife
+        NHoodStation.songs.Add(new Song(Hash.TGIRHash(0xFF60DF7E, 0xF9FCFBD1, 0x2026960B, 0xFFC4D24B)));
+        NHoodStation.songs.Add(new Song(Hash.TGIRHash(0xFF6B1F36, 0x63048DC1, 0x2026960B, 0xFFC4D24B)));
+        NHoodStation.songs.Add(new Song(Hash.TGIRHash(0xFFA059A0, 0x045D17A7, 0x2026960B, 0xFFC4D24B)));
+        //OFB
+        NHoodStation.songs.Add(new Song(Hash.TGIRHash(0xFFF7762C, 0x41471062, 0x2026960B, 0xFFC4D24B)));
+
+        Music.soundtrack.Add(SplashStation);
+        Music.soundtrack.Add(NHoodStation);
+
+
+        var dir = new DirectoryInfo(Application.dataPath).Parent.FullName;
+        config = JsonUtility.FromJson<Config>(File.ReadAllText(Path.Combine(dir, "config.json")));
+        if (LanguageNames.ContainsKey(config.lang))
+            language = LanguageNames[config.lang];
+    }
+    public static IEnumerator Init()
+    {
+        LoadFinished = false;
+        Thread thread = new Thread(new ThreadStart(ThreadedInit));
+        thread.Start();
+        while (!LoadFinished)
+            yield return null;
+        var hoods_folder = Path.Combine(config.user_dir, "Neighborhoods");
+        DirectoryInfo hoodInfo = new DirectoryInfo(hoods_folder);
+        foreach (var dire in hoodInfo.GetDirectories())
+        {
+            var hd = new Neighborhood(dire.FullName);
+            hoods.Add(hd);
+        }
+    }
 
     public static List<KeyValuePair<uint, byte[]>> GetItemsByType(uint Type)
     {
@@ -64,33 +107,35 @@ public static class Environment
         }
         return result;
     }
-
-    public static void LoadNHoodData()
+    public static void ThreadedLoadNHoodData()
     {
         LoadArchives(config.archives_nhood);
-        //var testCres = new RCOLFile(Environment.GetAsset("airport-terminal-001-ferry-001-neighborhood_stonebridge_cres".ToLower()));
-        //RCOLFile.GetModel("airport-terminal-001-ferry-001-neighborhood_stonebridge");
         var hoodDecos = GetItemsByType(0x6D619378);
-        foreach(var element in hoodDecos)
+        foreach (var element in hoodDecos)
         {
             var decoDesc = new NHoodDecorationDescription();
             var cpfFile = new CPFFile(element.Value);
             decoDesc.name = cpfFile.GetString("name");
             decoDesc.modelName = cpfFile.GetString("modelname");
-            //var assetName = GetAsset(decoDesc.modelName.ToLower() + "_tslocator_gmdc");
-            //var assetName = GetAsset( + "_cres");
-            Debug.Log("Doing " + decoDesc.modelName);
-            decoDesc.model = RCOLFile.GetModel(decoDesc.modelName.ToLower());
             var guid = cpfFile.GetUInt("guid");
             decoDesc.guid = guid;
             hoodDeco.Add(decoDesc);
             hoodDecoByGUID[guid] = decoDesc;
         }
+        LoadFinished = true;
     }
-    public static void GoToHood(Neighborhood hood)
+    public static void LoadNHoodData()
+    {
+        LoadFinished = false;
+        Thread thread = new Thread(new ThreadStart(ThreadedLoadNHoodData));
+        thread.Start();
+    }
+    public static IEnumerator GoToHood(Neighborhood hood)
     {
         LoadNHoodData();
         bgMusic.SetStation(MusicCategory.Nhood);
+        while (!LoadFinished)
+            yield return null;
         currentNhood = hood;
         currentNhood.InitializeNHoodData();
         SceneManager.LoadScene(1);
@@ -110,7 +155,7 @@ public static class Environment
             xafil.DecompressFile();
         return xafil;
     }
-    public static void LoadArchives(List<string> archives)
+    public static void LoadArchives(List<string> archives, bool setLoadFinishedToTrue = false)
     {
         foreach (var element1 in config.dlc)
         {
@@ -118,7 +163,9 @@ public static class Environment
             {
                 var fil = Path.Combine(config.game_dir, element1, element);
                 if (File.Exists(fil))
+                {
                     DBPFFile.LoadResource(fil);
+                }
                 else
                 {
                     if (Directory.Exists(fil))
@@ -132,47 +179,55 @@ public static class Environment
                 }
             }
         }
+        if (setLoadFinishedToTrue)
+            LoadFinished = true;
     }
-    public static void Init()
+    public static void ThreadedInit()
     {
-        var dir = new DirectoryInfo(Application.dataPath).Parent.FullName;
-        config = JsonUtility.FromJson<Config>(File.ReadAllText(Path.Combine(dir, "config.json")));
-        if (LanguageNames.ContainsKey(config.lang))
-            language = LanguageNames[config.lang];
-
         if (config.enable_mods)
         {
             var mods_folder = Path.Combine(config.user_dir, "Downloads");
             DirectoryInfo modInfo = new DirectoryInfo(mods_folder);
             foreach (var file in modInfo.GetFiles("*.package"))
             {
-                DBPFFile.LoadResource(file.FullName);
+                DBPFFile.LoadResource(file.FullName, true);
             }
         }
         LoadArchives(config.archives_main);
-        /*
-        foreach (var element1 in config.dlc)
-        {
-            foreach (var element in config.archives)
-            {
-                var fil = Path.Combine(config.game_dir, element1, element);
-                if (File.Exists(fil))
-                    DBPFFile.LoadResource(fil);
-            }
-        }*/
-        
-        var hoods_folder = Path.Combine(config.user_dir, "Neighborhoods");
-        DirectoryInfo hoodInfo = new DirectoryInfo(hoods_folder);
-        foreach(var dire in hoodInfo.GetDirectories())
-        {
-            var hd = new Neighborhood(dire.FullName);
-            hoods.Add(hd);
-        }
-        var ob = new GameObject("Background Music");
-        GameObject.DontDestroyOnLoad(ob);
-        bgMusic = ob.AddComponent<Music>();
-        //UIPackage = new DBPFFile(GetPackage("UI/ui.package"));
+        LoadFinished = true;
     }
+    
+
+    public static DBPFReference GetReference(string name)
+    {
+        if (entryByName.ContainsKey(name))
+        {
+            var entr = entryByName[name];
+            return new DBPFReference(entr.file.GetItemByName(name),entr.file);
+        }
+        return null;
+    }
+
+    public static DBPFReference GetReference(int tgir)
+    {
+        if (entryByFullID.ContainsKey(tgir))
+        {
+            var entr = entryByFullID[tgir];
+            return new DBPFReference(entr.file.GetEntry(entr),entr.file);
+        }
+        return null;
+    }
+
+    public static DBPFReference GetReferenceTGI(int tgi)
+    {
+        if (entryByID.ContainsKey(tgi))
+        {
+            var entr = entryByFullID[tgi];
+            return new DBPFReference(entr.file.GetEntry(entr),entr.file);
+        }
+        return null;
+    }
+
     public static byte[] GetAsset(string name)
     {
         if (entryByName.ContainsKey(name))
@@ -182,14 +237,27 @@ public static class Environment
         }
         return null;
     }
+
     public static byte[] GetAsset(int tgir)
     {
         if (entryByFullID.ContainsKey(tgir))
         {
-            return entryByFullID[tgir].file.GetEntry(entryByFullID[tgir]);
+            var entr = entryByFullID[tgir];
+            return entr.file.GetEntry(entr);
         }
         return null;
     }
+
+    public static byte[] GetAssetTGI(int tgi)
+    {
+        if (entryByID.ContainsKey(tgi))
+        {
+            var entr = entryByID[tgi];
+            return entr.file.GetEntry(entr);
+        }
+        return null;
+    }
+
     public static DBPFEntry GetEntry(int tgir)
     {
         if (entryByFullID.ContainsKey(tgir))
@@ -206,14 +274,7 @@ public static class Environment
         }
         return null;
     }
-    public static byte[] GetAssetTGI(int tgi)
-    {
-        if (entryByID.ContainsKey(tgi))
-        {
-            return entryByID[tgi].file.GetEntry(entryByID[tgi]);
-        }
-        return null;
-    }
+    
     /*
     public static byte[] GetAsset(GroupEntryRef refe)
     {

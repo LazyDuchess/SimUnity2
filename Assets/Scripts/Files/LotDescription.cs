@@ -44,7 +44,7 @@ public class LotDescription
         var rcolFile = package.GetItemByFullID(Hash.TGIRHash(0xFF1FB89E, 0x3ADB7D39, 0xAC4F8687, Hash.GroupHash(Path.GetFileNameWithoutExtension(package.fname))));
         if (rcolFile != null)
         {
-            imposterGMDC = new RCOLFile(rcolFile, true).dataBlocks[0] as GMDCDataBlock;
+            imposterGMDC = new RCOLFile(new DBPFReference(rcolFile,package), true).dataBlocks[0] as GMDCDataBlock;
             foreach (var element in imposterGMDC.model.meshes)
                 element.RecalculateNormals();
         }

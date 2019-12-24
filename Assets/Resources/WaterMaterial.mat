@@ -80,10 +80,10 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
-    - _WaterFogDensity: 0.01
+    - _WaterFogDensity: 0.03
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 0.32156864, g: 0.40784317, b: 0.54901963, a: 0.7411765}
+    - _Color: {r: 0.13563547, g: 0.19464223, b: 0.2264151, a: 0.4392157}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _ReflectionMultiplier: {r: 0.4056604, g: 0.4056604, b: 0.4056604, a: 1}
-    - _WaterFogColor: {r: 0.108757555, g: 0.17067231, b: 0.49056602, a: 1}
+    - _WaterFogColor: {r: 0.24203454, g: 0.27943203, b: 0.46226418, a: 1}

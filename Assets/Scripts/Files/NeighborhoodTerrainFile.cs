@@ -25,23 +25,11 @@ public class NHoodDecoration
     public GameObject Place()
     {
         var deco = new GameObject(description.name);
-        if (description.model != null)
+        var decoModel = ResourceManager.GetModel(description.modelName);
+        if (decoModel != null)
         {
-            var moddi = description.model.Spawn();
+            var moddi = decoModel.asset.Spawn();
             moddi.transform.SetParent(deco.transform);
-            /*
-            foreach (var element in description.model.model.meshes)
-            {
-                var imposterGroup = new GameObject("Mesh");
-                var imposterMeshFilter = imposterGroup.AddComponent<MeshFilter>();
-                var imposterMeshRenderer = imposterGroup.AddComponent<MeshRenderer>();
-                imposterMeshFilter.sharedMesh = element;
-                var mats = new Material[element.subMeshCount];
-                for (var i = 0; i < mats.Length; i++)
-                    mats[i] = Environment.defaultMaterial;
-                imposterMeshRenderer.sharedMaterials = mats;
-                imposterGroup.transform.SetParent(deco.transform);
-            }*/
         }
         deco.transform.position = position;
         deco.transform.rotation = Quaternion.Euler(new Vector3(0f,rotation,0f));
@@ -75,19 +63,41 @@ public class NeighborhoodTerrainFile
         var treeCount = io.ReadUInt32();
         for(var i=0;i<treeCount;i++)
         {
-            io.Skip(38); //ToDo: Load Trees
+            var treeByte = io.ReadByte();
+            var treeY = io.ReadFloat();
+            var treeX = io.ReadFloat();
+            var treeZ = io.ReadFloat();
+            var treeBBTopLeftY = io.ReadFloat();
+            var treeBBTopRightX = io.ReadFloat();
+            var treeBBBotLeftY = io.ReadFloat();
+            var treeBBBotRightX = io.ReadFloat();
+            var treeByte2 = io.ReadByte();
+            var treeRotation = io.ReadFloat();
+            var treeGUID = io.ReadUInt32();
+            NHoodDecorationDescription decoResource = null;
+            if (Environment.hoodDecoByGUID.ContainsKey(treeGUID))
+                decoResource = Environment.hoodDecoByGUID[treeGUID];
+            if (decoResource != null)
+            {
+                var deco = new NHoodDecoration();
+                deco.description = decoResource;
+                deco.position = new Vector3(treeY, treeZ, treeX);
+                deco.rotation = treeRotation * -1;
+                decos.Add(deco);
+            }
+            //io.Skip(38); // ToDo: Load Trees
         }
         io.Skip(2);
         var roadCount = io.ReadUInt32();
         for (var i=0;i<roadCount;i++)
         {
-            io.Skip(124); //ToDo: Load Roads
+            io.Skip(124); // ToDo: Load Roads
         }
         io.Skip(2);
         var bridgeCount = io.ReadUInt32();
         for (var i=0;i<bridgeCount;i++)
         {
-            io.Skip(165); //ToDo: Load Bridges
+            io.Skip(165); // ToDo: Load Bridges
         }
         io.Skip(2);
         var decorationCount = io.ReadUInt32();

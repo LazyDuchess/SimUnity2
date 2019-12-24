@@ -23,11 +23,14 @@
 		"TSData/Res/Sims3D/Textures.package"
 	],
 	
-	"archives_main" : [
+    "archives_startup" : [
 		"TSData/Res/UI/ui.package",
-		"TSData/Res/Sound/Neighborhood.package",
-		"TSData/Res/Text/Neighborhood.package",
 		"TSData/Res/Sound/Build.package"
+	],
+
+	"archives_main" : [
+		"TSData/Res/Sound/Neighborhood.package",
+		"TSData/Res/Text/Neighborhood.package"
 	],
 	
 	"archives_nhood" : [
