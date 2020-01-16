@@ -7,3 +7,5 @@ The code is a pretty big mess but, it's a good starting point for something grea
 
 # Usage:
 Write the appropiate paths to your TS2 Directories and user data folders in config.json and paste it into the root folder of the project or in the same spot as the built .exe
+
+![Neighborhood View in Belladona Cove](https://cdn.discordapp.com/attachments/479864840811184128/667412863421513759/unknown.png)
