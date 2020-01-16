@@ -1,11 +1,4 @@
 {
-	"package_dir" : "C:/Program Files (x86)/Origin Games/The Sims 2 Ultimate Collection/Double Deluxe/EP2/TSData/Res/Sound/Neighborhood.package",
-	"model_dir" : "C:/Program Files (x86)/Origin Games/The Sims 2 Ultimate Collection/Double Deluxe/Base/TSData/Res/Sims3D/Sims03.package",
-	"model_id" : 0,
-	"model_instance" : 4285603523,
-	"model_instance2" : 2507067984,
-	"output" : "C:/Users/TonyStank/Desktop/SanAndreasUnity-master/SimUnity2/Output/test.dat",
-	
 	"game_dir" : "C:/Program Files (x86)/Origin Games/The Sims 2 Ultimate Collection",
 	"user_dir" : "C:/Users/TonyStank/Documents/EA Games/The Sims™ 2 Ultimate Collection",
 	"su_dir" : "C:/Users/TonyStank/Documents/SimUnity2",

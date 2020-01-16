@@ -16,13 +16,19 @@ public class Music : MonoBehaviour
     public int currentStation = (int)MusicCategory.Splash;
     bool started = false;
     public static List<Station> soundtrack = new List<Station>();
-    /*
-    public static Dictionary<MusicCategory, List<int>> gameMusic = new Dictionary<MusicCategory, List<int>>()
+    public void OnSongEnd()
     {
-        { MusicCategory.Splash, new List<int>() {Hash.TGIRHash(0xFFA87950, 0x5BA1DCC7, 0x2026960B, 0xFF606C7A) } },
-        { MusicCategory.Nhood, new List<int>() {Hash.TGIRHash(0xFFA78F62, 0x09CCDF11, 0x2026960B, 0xFFC4D24B) } }
-    };*/
-
+        if (started)
+        {
+            mWaveOutDevice.Stop();
+            mWaveOutDevice.Dispose();
+        }
+        mWaveOutDevice = new WaveOut();
+        var song = GetRandomSong();
+        mWaveOutDevice = LoadAudioFromData(Environment.GetAudio(Environment.GetAsset(song)), mWaveOutDevice as WaveOut);
+        mWaveOutDevice.Play();
+        started = true;
+    }
     private WaveOut LoadAudioFromData(XAFile data, WaveOut device)
     {
         try
@@ -30,8 +36,8 @@ public class Music : MonoBehaviour
             if (started)
             {
                 device.Stop();
-                device.Dispose();
-                device = new WaveOut();
+                //device.Dispose();
+               // device = new WaveOut();
             }
             MemoryStream tmpStr = null;
             //MemoryStream 
@@ -86,16 +92,11 @@ public class Music : MonoBehaviour
             mWaveOutDevice.Stop();
             mWaveOutDevice.Dispose();
             mWaveOutDevice = new WaveOut();
+            
             var song = GetRandomSong();
             mWaveOutDevice = LoadAudioFromData(Environment.GetAudio(Environment.GetAsset(song)), mWaveOutDevice as WaveOut);
             mWaveOutDevice.Play();
             started = true;
-            /*
-            while (mWaveOutDevice.Volume < 1f)
-            {
-                mWaveOutDevice.Volume += Mathf.Min(1f, Mathf.Max(0f, (mWaveOutDevice.Volume + Time.deltaTime)));
-                yield return null;
-            }*/
             mWaveOutDevice.Volume = 1f;
             yield break;
         }
@@ -111,21 +112,14 @@ public class Music : MonoBehaviour
             currentStation = station;
             StartCoroutine(SwitchStationCoroutine());
         }
-        /*
-        if (station != currentStation)
+    }
+    private void Update()
+    {
+        if (started)
         {
-            if (started)
-            {
-                mWaveOutDevice.Stop();
-                mWaveOutDevice.Dispose();
-            }
-            currentStation = station;
-            mWaveOutDevice = new WaveOut();
-            var song = GetRandomSong();
-            mWaveOutDevice = LoadAudioFromData(Environment.GetAudio(Environment.GetAsset(song)), mWaveOutDevice as WaveOut);
-            mWaveOutDevice.Play();
-            started = true;
-        }*/
+            if (mWaveOutDevice.PlaybackState != PlaybackState.Playing)
+                OnSongEnd();
+        }
     }
     void OnApplicationQuit()
     {
