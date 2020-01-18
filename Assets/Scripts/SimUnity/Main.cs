@@ -95,39 +95,9 @@ public class Main : MonoBehaviour
         Debug.Log(Path.Combine(Application.dataPath, "config.json"));
         var conf = JsonUtility.FromJson<Config>(File.ReadAllText(Path.Combine(Application.dataPath,"config.json")));
         
-        //var conf = new Config();
-        //conf.package_dir = "C:/Users/TonyStank/Documents/EA Games/The Sims™ 2 Ultimate Collection/Neighborhoods/E001/E001_Neighborhood.package";
-        var pack = new DBPFFile(conf.package_dir);
+          var pack = new DBPFFile(conf.package_dir);
         Debug.Log("Entries in this file("+conf.package_dir+"): " + pack.NumEntries);
-        /*
-        //var fil = pack.GetItemByID((((ulong)0xFF60DF7E) << 32) + (ulong)0xF9FCFBD1 + (ulong)0x2026960B);
-        //var fil = pack.GetItemByID((((ulong)0xFFA059A0) << 32) + (ulong)0x045D17A7 + (ulong)0x2026960B);
-        var fil = pack.GetItemByID(new EntryRef((uint)0xFF60DF7E, (uint)0xF9FCFBD1, (uint)0x2026960B));
-        
-        if (!LoadAudioFromData(fil))
-        {
-            //System.Windows.Forms.MessageBox.Show("Cannot open mp3 file!");
-            return;
-        }
-
-        mWaveOutDevice.Play();
-        */
-        //Resources.UnloadUnusedAssets();
-
         var modelPack = new DBPFFile(conf.model_dir);
-        //var modelFile = modelPack.GetItemByID((((ulong)conf.model_instance) << 32) + (ulong)conf.model_instance2 + (ulong)0xAC4F8687);
-        //var modelFile = modelPack.GetItemByID(new EntryRef(conf.model_instance, conf.model_instance2, 0xAC4F8687));
-        //var modelFile = modelPack.GetItemByID((((ulong)0xFF0100F4) << 32) + (ulong)0xBAA19F2A + (ulong)0xAC4F8687);
-        //File.WriteAllBytes(conf.output, modelFile);
-        /*
-        var modelRCOL = new RCOLFile(modelFile);
-        arfile = modelRCOL;
-        gmdcData = modelRCOL.dataBlocks[0] as GMDCDataBlock;*/
-        //gmdcData.model.boundingMesh.RecalculateNormals();
-        //gmdcData.model.meshes[conf.model_id].RecalculateNormals();
-        /*
-        GetComponent<SkinnedMeshRenderer>().sharedMesh = gmdcData.model.meshes[conf.model_id];
-        GetComponent<SkinnedMeshRenderer>().localBounds = gmdcData.model.meshes[conf.model_id].bounds;*/
     }
 
     void OnApplicationQuit()
