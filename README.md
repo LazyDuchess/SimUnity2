@@ -6,6 +6,8 @@ As of the writing of this, Neighborhood select and Neighborhood View are working
 The code is a pretty big mess but, it's a good starting point for something greater, even if not a full reimplementation of TS2.
 
 # Usage:
+Make sure you're using Unity version 2019.2.0f1 for the best compatibility
+
 Write the appropiate paths to your TS2 Directories and user data folders in config.json and paste it into the root folder of the project or in the same spot as the built .exe
 
 ![Neighborhood View in Belladona Cove](https://cdn.discordapp.com/attachments/479864840811184128/667412863421513759/unknown.png)
