@@ -85,13 +85,14 @@ public static class Environment
         thread.Start();
         while (!LoadFinished)
             yield return null;
+        /*
         var hoods_folder = Path.Combine(config.user_dir, "Neighborhoods");
         DirectoryInfo hoodInfo = new DirectoryInfo(hoods_folder);
         foreach (var dire in hoodInfo.GetDirectories())
         {
             var hd = new Neighborhood(dire.FullName);
             hoods.Add(hd);
-        }
+        }*/
     }
 
     public static List<KeyValuePair<uint, byte[]>> GetItemsByType(uint Type)
