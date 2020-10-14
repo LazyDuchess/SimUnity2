@@ -31,6 +31,7 @@ public class HoodButton : MonoBehaviour
     }
     void GoToHood()
     {
+        var startupLoadPanel = Panel.StartupLoading();
         StartCoroutine(Environment.GoToHood(currentHood));
         //Environment.GoToHood(currentHood);
     }
