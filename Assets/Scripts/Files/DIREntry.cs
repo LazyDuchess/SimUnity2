@@ -64,9 +64,23 @@ namespace SU2.Files.Formats.DIR
                 array = NewArray;
             }
 
+            if (array.Length < srcPos + length)
+            {
+                byte[] NewArray = new byte[(int)(srcPos + length)];
+                Array.Copy(array, 0, NewArray, 0, array.Length);
+                array = NewArray;
+            }
+
             for (int i = 0; i < length /*- 1*/; i++)
             {
-                array[destPos + i] = array[srcPos + i];
+                try
+                {
+                    array[destPos + i] = array[srcPos + i];
+                }
+                catch(Exception e)
+                {
+                    //Fail silently :(
+                }
             }
         }
 
@@ -76,7 +90,7 @@ namespace SU2.Files.Formats.DIR
             MemoryStream MemData = new MemoryStream(Data);
             BinaryReader Reader = new BinaryReader(MemData);
 
-            if (Data.Length > 6)
+            if (Data.Length > 9)
             {
                 byte[] DecompressedData = new byte[(int)UncompressedFileSize];
                 int DataPos = 0;

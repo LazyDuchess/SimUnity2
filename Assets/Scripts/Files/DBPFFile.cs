@@ -266,11 +266,37 @@ namespace FSO.Files.Formats.DBPF
                     var gId = "0x" + element.GroupID.ToString("x8");
                     var nam = "";
                     if (element.TypeID == 0xE519C933)
-                        nam = RCOLFile.GetCRESName(ent).ToLower();
+                    {
+                        try
+                        {
+                            nam = RCOLFile.GetCRESName(ent).ToLower();
+                        }catch(Exception e)
+                        {
+
+                        }
+                    }
                     else if (element.TypeID == 0x7BA3838C)
-                        nam = RCOLFile.GetGMNDName(ent).ToLower();
+                    {
+                        try
+                        {
+                            nam = RCOLFile.GetGMNDName(ent).ToLower();
+                        }
+                        catch (Exception e)
+                        {
+
+                        }
+                    }
                     else
-                        nam = RCOLFile.GetName(ent).ToLower();
+                    {
+                        try
+                        {
+                            nam = RCOLFile.GetName(ent).ToLower();
+                        }
+                        catch (Exception e)
+                        {
+                            //Uhmmm... Fail silently!
+                        }
+                    }
                     var gNam = "##" + gId + "!" + nam;
                     m_EntryByName[nam] = element;
                     m_EntryByName[gNam] = element;

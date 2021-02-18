@@ -57,7 +57,7 @@ public class MainMenu : MonoBehaviour
         nextHButton.unlocked = true;
         previousHButton.unlocked = true;
         var maxPage = (Mathf.CeilToInt(Environment.hoods.Count / 3)-1)*3;
-        if (currentPage >= maxPage)
+        if (currentPage > maxPage)
             nextHButton.unlocked = false;
         if (currentPage == 0)
             previousHButton.unlocked = false;

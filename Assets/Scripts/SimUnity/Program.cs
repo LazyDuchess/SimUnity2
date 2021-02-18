@@ -34,7 +34,9 @@ public class Program : MonoBehaviour
         DirectoryInfo hoodInfo = new DirectoryInfo(hoods_folder); 
         foreach (var dire in hoodInfo.GetDirectories())
         {
+            Debug.Log(dire.FullName);
             var hd = new Neighborhood(dire.FullName);
+            
             Environment.hoods.Add(hd);   //Load hoods
         }
         startupLoadPanel.Delete(); //Remove loading panel since it's done

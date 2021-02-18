@@ -188,10 +188,13 @@ public static class Environment
         if (config.enable_mods)
         {
             var mods_folder = Path.Combine(config.user_dir, "Downloads");
-            DirectoryInfo modInfo = new DirectoryInfo(mods_folder);
-            foreach (var file in modInfo.GetFiles("*.package"))
+            if (Directory.Exists(mods_folder))
             {
-                DBPFFile.LoadResource(file.FullName, true);
+                DirectoryInfo modInfo = new DirectoryInfo(mods_folder);
+                foreach (var file in modInfo.GetFiles("*.package",SearchOption.AllDirectories))
+                {
+                    DBPFFile.LoadResource(file.FullName, true);
+                }
             }
         }
         LoadArchives(config.archives_main);
