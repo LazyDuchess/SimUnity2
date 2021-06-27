@@ -138,6 +138,9 @@ public class Neighborhood
             var dec = element.Place();
             dec.transform.SetParent(NeighborhoodObject.transform);
         }
+
+        var headModel = ResourceManager.GetModel("afArchAlien");
+        headModel.asset.Spawn();
     }
 
     public Neighborhood(string folder)
