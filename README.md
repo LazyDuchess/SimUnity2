@@ -1,3 +1,6 @@
+# This project is no longer under active development
+Succeeded by [OpenTS2](https://github.com/LazyDuchess/OpenTS2)
+
 # SimUnity2
 Attempt at a reimplementation of The Sims 2 Ultimate Collection in the Unity Engine...
 
